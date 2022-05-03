@@ -1,0 +1,49 @@
+#=== Auditbeat specific options ===
+#===  Modules configuration ===
+auditbeat.modules:
+- module: file_integrity
+  paths:
+  - C:/windows
+  - C:/windows/system32
+  - C:/windows/SysWOW64
+  - C:/Program Files
+  - C:/Program Files (x86)
+  - C:/ProgramData
+- module: system
+  datasets:
+    - host
+  state.period: 12h
+  period: 1h
+- module: system
+  datasets:
+    - process
+  processors:
+    - add_process_metadata:
+        match_pids: [process.ppid]
+        target: system.process.parent
+  period: 3m
+#=== Auditbeat logging ===
+# Configure logging for Auditbeat if you plan on using the GeoIP ingest processor
+# Initially use `info` for the logging.level, set logging.level to `debug` if you see
+# an `Failed to publish events: temporary bulk send failure` error message in the logs
+#logging.level: info
+#logging.to_files: true
+#logging.files:
+#  path: C:\Program Files\Elastic\logs\
+#  name: auditbeat
+#  keepfiles: 7
+#  permissions: 0644
+# Configuration applicable for all beats on a specific device
+#=== General ===
+#name: myWinPC
+# no need to set up the elk stack because it already exists
+setup.ilm.enabled: false
+
+tags: ["Windows"]
+#=== Top Level Processor ===
+processors:
+  - add_host_metadata: ~
+
+output.logstash:
+  # The Logstash hosts
+  hosts: ["b44007d6-3f02-4e87-80fe-b6a99779975b-ls.logit.io:23563"]
